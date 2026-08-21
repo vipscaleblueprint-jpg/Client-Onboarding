@@ -275,7 +275,8 @@ function App() {
   const isValid = validateStep(currentStep);
 
   return (
-    <div className="app-container">
+    <>
+      <div className="app-container">
       <div className="app-header">
         <h1>JENESIARED | LAUNCH READY</h1>
       </div>
@@ -842,7 +843,7 @@ function App() {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
 
