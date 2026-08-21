@@ -10,10 +10,10 @@ const questions = [
   { id: 'businessName', label: 'Business Name', placeholder: 'Your Company Name', description: 'PERSONAL & BUSINESS INFORMATION' },
   { id: 'businessWebsite', label: 'Business Website', placeholder: 'https://', description: 'PERSONAL & BUSINESS INFORMATION (if applicable)', optional: true },
 
-  { id: 'profession', label: 'I am a...', placeholder: 'e.g., Marketing Strategist', description: 'PERSONAL & BUSINESS INFORMATION' },
-  { id: 'aboutClients', label: 'who helps...', placeholder: 'e.g., B2B SaaS companies', description: 'PERSONAL & BUSINESS INFORMATION' },
-  { id: 'aboutGoal', label: 'achieve...', placeholder: 'e.g., 3x their lead generation', description: 'PERSONAL & BUSINESS INFORMATION' },
-  { id: 'aboutPainPoints', label: 'without...', placeholder: 'e.g., spending thousands on ads', description: 'PERSONAL & BUSINESS INFORMATION' },
+  { id: 'profession', label: 'I am a...', placeholder: 'e.g., Marketing Strategist', description: '[Profession/Role]' },
+  { id: 'aboutClients', label: 'who helps...', placeholder: 'e.g., B2B SaaS companies', description: '[Current/Previous clients]' },
+  { id: 'aboutGoal', label: 'achieve...', placeholder: 'e.g., 3x their lead generation', description: '[Transformational goal]' },
+  { id: 'aboutPainPoints', label: 'without...', placeholder: 'e.g., spending thousands on ads', description: '[Pain Points/Friction]' },
   { id: 'summary1', label: '', type: 'summary', group: 1 },
 
   { id: 'productName', label: 'Product Name', placeholder: 'Name of your product or service', description: 'PRODUCT DETAILS' },
@@ -582,6 +582,11 @@ function App() {
                                   This is ideal for <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'idealClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.idealClients || '___'}</strong> who <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'idealSituation', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.idealSituation || '___'}</strong>
                                   <span style={{ display: formData.notIdealSituation ? 'inline' : 'none' }}> but is not ideal for <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'notIdealSituation', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.notIdealSituation || '___'}</strong></span>.
                                 </p>
+                              )}
+                              {isCurrent && (
+                                <div style={{ fontSize: '0.85rem', opacity: 0.6, marginTop: '2rem', fontWeight: 400, color: 'var(--text-light)', textAlign: 'left' }}>
+                                  Press <strong>Enter ↵</strong> to continue.
+                                </div>
                               )}
                             </div>
                           ) : q.type === 'multiselect' ? (
