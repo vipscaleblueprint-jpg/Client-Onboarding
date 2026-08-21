@@ -333,22 +333,18 @@ form {
   width: 100vw;
   height: 100vh;
   background-color: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(30px);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Fix for backdrop-filter failing on hardware accelerated siblings */
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: transform, backdrop-filter;
 }
 
 .modal-content {
   background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
+  backdrop-filter: blur(50px);
   border: 1px solid rgba(255, 255, 255, 0.9);
   width: 90%;
   max-width: 800px;
