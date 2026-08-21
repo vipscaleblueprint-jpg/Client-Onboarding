@@ -35,16 +35,15 @@ html {
   width: 800px;
   height: 800px;
   pointer-events: none;
-  z-index: 55; /* above fade overlays (50) */
+  z-index: 55;
+  /* above fade overlays (50) */
   border-radius: 50%;
-  background: repeating-radial-gradient(
-    circle at center,
-    transparent 0px,
-    transparent 20px,
-    rgba(210, 50, 80, 0.08) 20.5px,
-    rgba(200, 40, 70, 0.05) 22px,
-    transparent 22.5px
-  );
+  background: repeating-radial-gradient(circle at center,
+      transparent 0px,
+      transparent 20px,
+      rgba(210, 50, 80, 0.08) 20.5px,
+      rgba(200, 40, 70, 0.05) 22px,
+      transparent 22.5px);
 }
 
 .app-container {
@@ -191,7 +190,6 @@ html {
   margin: 0 auto;
   width: 100%;
   position: relative;
-  z-index: 2;
 }
 
 form {
@@ -208,6 +206,7 @@ form {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-bottom: 14vh;
 }
 
 .question-container {
@@ -315,7 +314,7 @@ form {
 
 .pill-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border-color: rgba(230, 57, 104, 0.3);
 }
 
@@ -340,6 +339,10 @@ form {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Fix for backdrop-filter failing on hardware accelerated siblings */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform, backdrop-filter;
 }
 
 .modal-content {
@@ -420,8 +423,12 @@ form {
 
 .modal-summary-list {
   display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.modal-summary-list.two-column {
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
 }
 
 .summary-item {
@@ -653,11 +660,11 @@ form {
   .line-input {
     font-size: 1.5rem;
   }
-  
+
   .line-textarea {
     font-size: 1.25rem;
   }
-  
+
   .pill-btn {
     font-size: 1rem;
     padding: 0.75rem 1.5rem;

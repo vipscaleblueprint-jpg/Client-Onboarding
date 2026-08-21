@@ -9,31 +9,31 @@ const questions = [
   { id: 'email', label: 'Email Address', placeholder: 'you@example.com', description: 'PERSONAL & BUSINESS INFORMATION' },
   { id: 'businessName', label: 'Business Name', placeholder: 'Your Company Name', description: 'PERSONAL & BUSINESS INFORMATION' },
   { id: 'businessWebsite', label: 'Business Website', placeholder: 'https://', description: 'PERSONAL & BUSINESS INFORMATION (if applicable)', optional: true },
-  
+
   { id: 'profession', label: 'I am a...', placeholder: 'e.g., Marketing Strategist', description: 'PERSONAL & BUSINESS INFORMATION' },
   { id: 'aboutClients', label: 'who helps...', placeholder: 'e.g., B2B SaaS companies', description: 'PERSONAL & BUSINESS INFORMATION' },
   { id: 'aboutGoal', label: 'achieve...', placeholder: 'e.g., 3x their lead generation', description: 'PERSONAL & BUSINESS INFORMATION' },
   { id: 'aboutPainPoints', label: 'without...', placeholder: 'e.g., spending thousands on ads', description: 'PERSONAL & BUSINESS INFORMATION' },
   { id: 'summary1', label: '', type: 'summary', group: 1 },
-  
+
   { id: 'productName', label: 'Product Name', placeholder: 'Name of your product or service', description: 'PRODUCT DETAILS' },
   { id: 'productType', label: 'My...', placeholder: 'e.g., signature coaching program', description: 'PRODUCT DETAILS' },
   { id: 'productClients', label: 'helps...', placeholder: 'e.g., new agency owners', description: 'PRODUCT DETAILS' },
   { id: 'productGoal', label: 'achieve...', placeholder: 'e.g., consistent 10k months', description: 'PRODUCT DETAILS' },
   { id: 'productHow', label: 'by...', placeholder: 'e.g., installing a predictable acquisition system', description: 'PRODUCT DETAILS' },
   { id: 'summary2', label: '', type: 'summary', group: 2 },
-  
+
   { id: 'included', label: 'What\'s included?', placeholder: 'List main components / features / deliverables', description: 'PRODUCT DETAILS', type: 'textarea' },
   { id: 'different', label: 'What makes it different?', placeholder: 'Explain your unique edge or value proposition', description: 'PRODUCT DETAILS (optional)', type: 'textarea', optional: true },
-  
+
   { id: 'price', label: 'Price', placeholder: 'e.g., $997 or $99/mo', description: 'PRICING & BUSINESS DETAILS' },
   { id: 'pricingStructure', label: 'Pricing Structure', description: 'PRICING & BUSINESS DETAILS (multiple selection)', type: 'multiselect', options: ['One-time Payment', 'Installment', 'Subscription', 'Others'] },
-  
+
   { id: 'idealClients', label: 'This is ideal for...', placeholder: 'e.g., ambitious entrepreneurs', description: 'TARGET AUDIENCE' },
   { id: 'idealSituation', label: 'who...', placeholder: 'e.g., are ready to scale', description: 'TARGET AUDIENCE' },
   { id: 'notIdealSituation', label: 'This is not ideal for...', placeholder: 'e.g., people looking for get-rich-quick schemes', description: 'TARGET AUDIENCE', optional: true },
   { id: 'summary3', label: '', type: 'summary', group: 3 },
-  
+
   { id: 'additionalInfo', label: 'Anything else we should know?', placeholder: 'To help bring your vision to life', description: 'ADDITIONAL INFO', type: 'textarea', optional: true },
 ];
 
@@ -68,7 +68,7 @@ function App() {
     notIdealSituation: '',
     additionalInfo: ''
   });
-  
+
   const inputRef = useRef(null);
   const autofilledRef = useRef({ productType: false, productClients: false, productGoal: false, idealClients: false });
   const lastAdvanceRef = useRef(0);
@@ -108,35 +108,30 @@ function App() {
     }, 100);
   }, [currentStep]);
 
-  // Typing animation for auto-fill
+  // Instant auto-fill for related fields
   useEffect(() => {
-    const startTyping = (targetField, sourceValue) => {
+    const autoFill = (targetField, sourceValue) => {
       if (!sourceValue || autofilledRef.current[targetField]) return;
       if (formData[targetField]) {
         autofilledRef.current[targetField] = true;
         return;
       }
-      
+
       autofilledRef.current[targetField] = true;
-      let i = 0;
-      const interval = setInterval(() => {
-        setFormData(prev => ({
-          ...prev,
-          [targetField]: sourceValue.substring(0, i + 1)
-        }));
-        i++;
-        if (i >= sourceValue.length) clearInterval(interval);
-      }, 50);
+      setFormData(prev => ({
+        ...prev,
+        [targetField]: sourceValue
+      }));
     };
 
     if (currentStep === 10) {
-      startTyping('productType', formData.productName);
+      autoFill('productType', formData.productName);
     } else if (currentStep === 11) {
-      startTyping('productClients', formData.aboutClients);
+      autoFill('productClients', formData.aboutClients);
     } else if (currentStep === 12) {
-      startTyping('productGoal', formData.aboutGoal);
+      autoFill('productGoal', formData.aboutGoal);
     } else if (currentStep === 19) {
-      startTyping('idealClients', formData.aboutClients);
+      autoFill('idealClients', formData.aboutClients);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep]);
@@ -178,7 +173,7 @@ function App() {
       }
       return true;
     }
-    
+
     const value = formData[q.id];
     if (Array.isArray(value)) {
       if (value.length === 0) return false;
@@ -198,7 +193,7 @@ function App() {
   const getErrorMessage = (stepIndex) => {
     const q = questions[stepIndex];
     const value = formData[q.id];
-    
+
     if (typeof value !== 'string' || !value.trim()) return null;
 
     if (q.id === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
@@ -287,15 +282,15 @@ function App() {
 
       {/* Navigation buttons at top right, outside form to avoid stacking context issues */}
       <div className="navigation-buttons">
-        <button 
-          type="button" 
-          className={`btn btn-secondary ${currentStep === 0 ? 'hidden' : ''}`} 
+        <button
+          type="button"
+          className={`btn btn-secondary ${currentStep === 0 ? 'hidden' : ''}`}
           onClick={handleBack}
         >
           ← Back
         </button>
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="btn btn-primary"
           onClick={handleFormSubmit}
           disabled={!isValid}
@@ -304,8 +299,6 @@ function App() {
         </button>
       </div>
 
-      {/* Ray of light */}
-      <div className="ray-of-light" />
 
       {/* Fade overlays */}
       <div className="fade-overlay-top" />
@@ -313,8 +306,8 @@ function App() {
 
       <div className="progress-timeline">
         <div className="progress-timeline-track">
-          <div 
-            className="progress-timeline-fill" 
+          <div
+            className="progress-timeline-fill"
             style={{ width: `${isCompleted ? 100 : (currentStep / (questions.length - 1)) * 100}%` }}
           />
           {[
@@ -326,7 +319,7 @@ function App() {
             const position = (milestone.index / (questions.length - 1)) * 100;
             const isPassed = isCompleted || highestStep >= milestone.index;
             const isCurrent = currentStep >= milestone.index && (i === arr.length - 1 || currentStep < arr[i + 1].index);
-            
+
             const handleMilestoneClick = () => {
               if (isCompleted) {
                 setCurrentStep(milestone.index);
@@ -341,10 +334,10 @@ function App() {
                 setCurrentStep(milestone.index);
               }
             };
-            
+
             return (
-              <div 
-                key={milestone.index} 
+              <div
+                key={milestone.index}
                 className={`milestone-dot ${isPassed ? 'passed' : ''} ${isCurrent ? 'current' : ''}`}
                 style={{ left: `${position}%`, cursor: isPassed ? 'pointer' : 'default', opacity: isPassed ? 1 : 0.5 }}
                 onClick={handleMilestoneClick}
@@ -357,35 +350,35 @@ function App() {
           })}
         </div>
       </div>
-      
+
       <div className="form-wrapper">
         <form onSubmit={handleFormSubmit}>
           <div className="questions-stack">
             {questions.map((q, index) => {
               const offset = index - currentStep;
-              
+
               // Clamp visual offset to prevent massive animations that can glitch Framer Motion
               const visualOffset = Math.max(-2, Math.min(2, offset));
 
               const isHorizontalGroup = (index >= 4 && index <= 7) || (index >= 10 && index <= 13) || (index >= 19 && index <= 21);
-              
+
               const isGroup1 = index >= 4 && index <= 7;
               const isGroup2 = index >= 10 && index <= 13;
               const isGroup3 = index >= 19 && index <= 21;
-              
+
               const currentInGroup1 = currentStep >= 4 && currentStep <= 7;
               const currentInGroup2 = currentStep >= 10 && currentStep <= 13;
               const currentInGroup3 = currentStep >= 19 && currentStep <= 21;
               const currentIsHorizontal = currentInGroup1 || currentInGroup2 || currentInGroup3;
-              
-              const isActiveGroup = 
-                (isGroup1 && currentInGroup1) || 
+
+              const isActiveGroup =
+                (isGroup1 && currentInGroup1) ||
                 (isGroup2 && currentInGroup2) ||
                 (isGroup3 && currentInGroup3);
 
               // Only render questions within range, or in the active horizontal group
               if (Math.abs(offset) > 3 && !isActiveGroup) return null;
-                
+
               const isLeftStacked = isHorizontalGroup && isActiveGroup && offset < 0;
               const currentIsSummary = questions[currentStep]?.type === 'summary';
               const ySpacing = currentIsSummary ? 320 : 260;
@@ -409,18 +402,33 @@ function App() {
                   y = 0;
                   opacity = 1;
                   scale = 1;
+                } else if (isLeftStacked) {
+                  // Answered questions in the same group fade to the left
+                  x = -200;
+                  y = 0;
+                  opacity = 0;
+                  scale = 0.8;
                 } else {
-                  // This is a previous stacked input (whether in the same horizontal group or not)
-                  x = 0; 
-                  y = -ySpacing * Math.abs(visualOffset) + inactiveYOffset; 
+                  // This is a previous stacked input outside the horizontal group
+                  x = -40;
+                  y = -ySpacing * Math.abs(visualOffset) + inactiveYOffset;
                   opacity = Math.abs(offset) > 3 ? 0 : 0.9;
                   scale = 0.85;
                 }
               } else if (offset > 0) {
-                x = 0; 
-                y = ySpacing * visualOffset + inactiveYOffset;
-                opacity = (offset === 1) ? 0.25 : 0;
-                scale = 0.85;
+                if (isHorizontalGroup && isActiveGroup) {
+                  // Next questions in the active horizontal group come from the right
+                  x = 750;
+                  y = 0;
+                  opacity = (offset === 1) ? 0.25 : 0;
+                  scale = 0.85;
+                } else {
+                  // Standard vertical stack from the bottom
+                  x = -40;
+                  y = ySpacing * Math.abs(visualOffset) + inactiveYOffset;
+                  opacity = (offset === 1) ? 0.25 : 0;
+                  scale = 0.85;
+                }
               }
 
               const isCurrent = offset === 0;
@@ -473,14 +481,14 @@ function App() {
                 if (idx === 19 || idx === 22) return (data.idealClients?.length || 0) + (data.idealSituation?.length || 0) + (data.notIdealSituation?.length || 0);
                 return 0;
               };
-              
+
               const textLength = getGroupLength(index, formData);
               let dynamicFontSize = '1.8rem';
               if (textLength > 250) dynamicFontSize = '0.9rem';
               else if (textLength > 150) dynamicFontSize = '1.1rem';
               else if (textLength > 80) dynamicFontSize = '1.35rem';
               else if (textLength > 40) dynamicFontSize = '1.6rem';
-              
+
               let summaryFontSize = '2.25rem';
               if (textLength > 300) summaryFontSize = '1.1rem';
               else if (textLength > 200) summaryFontSize = '1.4rem';
@@ -491,43 +499,43 @@ function App() {
                 <motion.div
                   key={q.id}
                   initial={false}
-                  animate={{ 
-                    x, 
-                    y, 
-                    opacity, 
-                    scale, 
-                    zIndex: 10 - Math.abs(offset) 
+                  animate={{
+                    x,
+                    y,
+                    opacity,
+                    scale,
+                    zIndex: isCurrent ? 100 : (10 - Math.abs(offset))
                   }}
-                  transition={{ 
+                  transition={{
                     x: { type: "spring", stiffness: 300, damping: 30 },
                     y: { type: "spring", stiffness: 100, damping: 20 },
                     opacity: { duration: 0.3 },
                     scale: { type: "spring", stiffness: 200, damping: 25 }
                   }}
                   className="question-container"
-                  style={{ 
+                  style={{
                     pointerEvents: isCurrent ? 'auto' : 'none',
                   }}
                 >
                   {isLeftStacked && index === (isGroup2 ? 10 : isGroup3 ? 19 : 4) ? (
-                      <div 
-                        className="preview-line active" 
-                        style={{ 
-                          display: 'inline-block',
-                          lineHeight: '1.8',
-                          maxWidth: '400px',
-                          paddingRight: '1rem',
-                          fontSize: dynamicFontSize,
-                          transition: 'font-size 0.3s ease'
-                        }}
-                      >
-                        {getPreviewText(index, formData, currentStep)}
-                      </div>
+                    <div
+                      className="preview-line active"
+                      style={{
+                        display: 'inline-block',
+                        lineHeight: '1.8',
+                        maxWidth: '400px',
+                        paddingRight: '1rem',
+                        fontSize: dynamicFontSize,
+                        transition: 'font-size 0.3s ease'
+                      }}
+                    >
+                      {getPreviewText(index, formData, currentStep)}
+                    </div>
                   ) : (
                     <>
                       {q.type !== 'summary' && (
                         <>
-                          <span 
+                          <span
                             className="step-indicator"
                             style={{ opacity: isCurrent ? 1 : 0, transition: 'opacity 0.3s ease' }}
                           >
@@ -537,7 +545,7 @@ function App() {
                           {q.description && <p className="question-description">{q.description}</p>}
                         </>
                       )}
-                      
+
                       <div style={{ opacity: isCurrent ? 1 : 0, transition: 'opacity 0.3s ease' }}>
                         {q.type === 'summary' ? (
                           <div className="summary-statement">
@@ -570,6 +578,7 @@ function App() {
                                   e.stopPropagation();
                                   if (isCurrent) handleMultiSelect(option);
                                 }}
+                                onKeyDown={isCurrent ? handleKeyDown : undefined}
                                 tabIndex={isCurrent ? 0 : -1}
                                 style={{ pointerEvents: 'auto' }}
                               >
@@ -585,8 +594,8 @@ function App() {
                                   type="text"
                                   name={`${q.id}Others`}
                                   className="line-input"
-                                  style={{ 
-                                    fontSize: '1.25rem', 
+                                  style={{
+                                    fontSize: '1.25rem',
                                     borderBottom: '2px solid var(--primary-color)',
                                     padding: '0.5rem 1rem',
                                     minWidth: 0,
@@ -643,7 +652,7 @@ function App() {
                         )}
                         <AnimatePresence>
                           {isCurrent && getErrorMessage(index) && (
-                            <motion.div 
+                            <motion.div
                               initial={{ opacity: 0, y: -5 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -5 }}
@@ -674,7 +683,7 @@ function App() {
           ];
           return (
             <div className="modal-overlay">
-              <motion.div 
+              <motion.div
                 className="modal-content"
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -686,21 +695,21 @@ function App() {
                   {sections.map((section, si) => (
                     <div key={si} className="modal-section">
                       <h3 className="modal-section-title">{section.title}</h3>
-                      <div className="modal-summary-list">
+                      <div className={`modal-summary-list ${section.title === 'Personal Info' ? 'two-column' : ''}`}>
                         {section.indices.map(idx => {
                           const q = questions[idx];
                           if (!q) return null;
                           const answer = formData[q.id];
                           let displayAnswer = answer;
-                          
+
                           if (Array.isArray(answer)) {
                             displayAnswer = answer.map(a => a === 'Others' && formData[`${q.id}Others`] ? formData[`${q.id}Others`] : a).join(', ');
                           }
-                          
+
                           return (
                             <div key={q.id} className="summary-item">
                               <span className="summary-label">{q.label}</span>
-                              <span 
+                              <span
                                 className="summary-value editable-text"
                                 contentEditable
                                 suppressContentEditableWarning
@@ -719,7 +728,7 @@ function App() {
                             </div>
                           );
                         })}
-                        
+
                         {section.summary && (
                           <div className="summary-item full-width-summary">
                             <span className="summary-value">
@@ -755,12 +764,12 @@ function App() {
                     try {
                       // Generate PDF
                       const blob = await pdf(<PdfDocument formData={formData} />).toBlob();
-                      
+
                       // Send to n8n Webhook
                       const safeName = (formData.name || 'Client').trim().replace(/[^a-zA-Z0-9]/g, '-');
                       const safeBiz = (formData.businessName || 'Business').trim().replace(/[^a-zA-Z0-9]/g, '-');
                       const fileName = `${safeName}-${safeBiz}.pdf`;
-                      
+
                       const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
                       if (!webhookUrl) {
                         throw new Error("Webhook URL is not defined in .env");
@@ -768,7 +777,7 @@ function App() {
 
                       const payload = new FormData();
                       payload.append('file', blob, fileName);
-                      
+
                       // Also append all raw form data just in case n8n needs it
                       payload.append('formData', JSON.stringify(formData));
 
@@ -803,7 +812,7 @@ function App() {
       <AnimatePresence>
         {showSuccessModal && (
           <div className="modal-overlay">
-            <motion.div 
+            <motion.div
               className="modal-content"
               style={{ height: 'auto', padding: '4rem 3rem', textAlign: 'center', alignItems: 'center', maxWidth: '500px', justifyContent: 'center' }}
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -820,8 +829,8 @@ function App() {
               <p style={{ fontSize: '1.1rem', color: 'var(--text-light)', marginBottom: '2.5rem', lineHeight: '1.6' }}>
                 Your information was successfully submitted.
               </p>
-              <button 
-                className="btn-primary" 
+              <button
+                className="btn-primary"
                 style={{ width: '100%', padding: '1rem', border: 'none', borderRadius: '50px', fontSize: '1.1rem', letterSpacing: '1px' }}
                 onClick={() => {
                   setShowSuccessModal(false);
