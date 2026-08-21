@@ -11,27 +11,27 @@ const questions = [
   { id: 'businessWebsite', label: 'Business Website', placeholder: 'https://', description: '(if applicable)', optional: true },
 
   { id: 'profession', label: 'I am a...', placeholder: 'e.g., Marketing Strategist', description: '[Profession/Role]' },
-  { id: 'aboutClients', label: 'who helps...', placeholder: 'e.g., B2B SaaS companies', description: '[Current/Previous clients]' },
-  { id: 'aboutGoal', label: 'achieve...', placeholder: 'e.g., 3x their lead generation', description: '[Transformational goal]' },
+  { id: 'aboutClients', label: 'who helps...', placeholder: 'e.g., B2B SaaS companies', description: '[Current/Previous Clients]' },
+  { id: 'aboutGoal', label: 'achieve...', placeholder: 'e.g., 3x their lead generation', description: '[Transformational Goal]' },
   { id: 'aboutPainPoints', label: 'without...', placeholder: 'e.g., spending thousands on ads', description: '[Pain Points/Friction]' },
   { id: 'summary1', label: '', type: 'summary', group: 1 },
 
   { id: 'productName', label: 'Product Name', placeholder: 'Name of your product or service', description: '' },
   { id: 'productType', label: 'My...', placeholder: 'e.g., signature coaching program', description: '[Product/Service/Program]' },
-  { id: 'productClients', label: 'helps...', placeholder: 'e.g., new agency owners', description: '[Your current/Previous clients]' },
-  { id: 'productGoal', label: 'achieve...', placeholder: 'e.g., consistent 10k months', description: '[Transformational goal]' },
-  { id: 'productHow', label: 'by...', placeholder: 'e.g., installing a predictable acquisition system', description: '[How it works]' },
+  { id: 'productClients', label: 'helps...', placeholder: 'e.g., new agency owners', description: '[Current/Previous Clients]' },
+  { id: 'productGoal', label: 'achieve...', placeholder: 'e.g., consistent 10k months', description: '[Transformational Goal]' },
+  { id: 'productHow', label: 'by...', placeholder: 'e.g., installing a predictable acquisition system', description: '[How it Works]' },
   { id: 'summary2', label: '', type: 'summary', group: 2 },
 
-  { id: 'included', label: 'What\'s included?', placeholder: 'List main components / features / deliverables', description: '[Main components/features/deliverables] ', type: 'textarea' },
-  { id: 'different', label: 'What makes it different?', placeholder: 'Explain your unique edge or value proposition', description: '(optional)', type: 'textarea', optional: true },
+  { id: 'included', label: 'What\'s included?', placeholder: 'List main components / features / deliverables', description: '[Main Components/Features/Deliverables] ', type: 'textarea' },
+  { id: 'different', label: 'What makes it different?', placeholder: 'Explain your unique edge or value proposition', description: '(Optional)', type: 'textarea', optional: true },
 
-  { id: 'price', label: 'Price', placeholder: 'e.g., $997 or $99/mo', description: '[Price / pricing structure]' },
+  { id: 'price', label: 'Price', placeholder: 'e.g., $997 or $99/mo', description: '[Price / Pricing Structure]' },
   { id: 'pricingStructure', label: 'Pricing Structure', description: '(Multiple selection)', type: 'multiselect', options: ['One-time Payment', 'Installment', 'Subscription', 'Others'] },
 
-  { id: 'idealClients', label: 'This is ideal for...', placeholder: 'e.g., ambitious entrepreneurs', description: '[Your current/previous clients]' },
-  { id: 'idealSituation', label: 'who...', placeholder: 'e.g., are ready to scale', description: '[Specific situation/problem]' },
-  { id: 'notIdealSituation', label: 'This is not ideal for...', placeholder: 'e.g., people looking for get-rich-quick schemes', description: '[Type of person/situation]', optional: true },
+  { id: 'idealClients', label: 'This is ideal for...', placeholder: 'e.g., ambitious entrepreneurs', description: '[Current/Previous Clients]' },
+  { id: 'idealSituation', label: 'who...', placeholder: 'e.g., are ready to scale', description: '[Specific Situation/Problem]' },
+  { id: 'notIdealSituation', label: 'This is not ideal for...', placeholder: 'e.g., people looking for get-rich-quick schemes', description: '[Type of Person/Situation]', optional: true },
   { id: 'summary3', label: '', type: 'summary', group: 3 },
 
   { id: 'additionalInfo', label: 'Anything else we should know?', placeholder: 'To help bring your vision to life', description: '', type: 'textarea', optional: true },
@@ -163,12 +163,12 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep, showModal]);
 
-  // Auto-advance summary screens after 10 seconds
+  // Auto-advance summary screens after 5 seconds
   useEffect(() => {
     if (questions[currentStep]?.type === 'summary' && !showModal && !showSuccessModal) {
       const timer = setTimeout(() => {
         handleNext();
-      }, 10000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -569,23 +569,23 @@ function App() {
                               )}
                               {q.id === 'summary1' && (
                                 <p style={{ fontSize: summaryFontSize, transition: 'font-size 0.3s ease' }}>
-                                  I am a <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'profession', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.profession || '___'}</strong> who helps <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutClients || '___'}</strong> achieve <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutGoal', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutGoal || '___'}</strong> without <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutPainPoints', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutPainPoints || '___'}</strong>.
+                                  I am a <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'profession', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.profession || '___'}</strong> who helps <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutClients || '___'}</strong> achieve <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutGoal', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutGoal || '___'}</strong> without <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutPainPoints', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutPainPoints || '___'}</strong>
                                 </p>
                               )}
                               {q.id === 'summary2' && (
                                 <p style={{ fontSize: summaryFontSize, transition: 'font-size 0.3s ease' }}>
-                                  My <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productType', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productType || '___'}</strong> helps <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productClients || '___'}</strong> achieve <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productGoal', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productGoal || '___'}</strong> by <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productHow', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productHow || '___'}</strong>.
+                                  My <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productType', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productType || '___'}</strong> helps <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productClients || '___'}</strong> achieve <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productGoal', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productGoal || '___'}</strong> by <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productHow', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productHow || '___'}</strong>
                                 </p>
                               )}
                               {q.id === 'summary3' && (
                                 <p style={{ fontSize: summaryFontSize, transition: 'font-size 0.3s ease' }}>
                                   This is ideal for <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'idealClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.idealClients || '___'}</strong> who <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'idealSituation', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.idealSituation || '___'}</strong>
-                                  <span style={{ display: formData.notIdealSituation ? 'inline' : 'none' }}> but is not ideal for <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'notIdealSituation', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.notIdealSituation || '___'}</strong></span>.
+                                  <span style={{ display: formData.notIdealSituation ? 'inline' : 'none' }}> but is not ideal for <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'notIdealSituation', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.notIdealSituation || '___'}</strong></span>
                                 </p>
                               )}
                               {isCurrent && (
-                                <div style={{ fontSize: '0.85rem', opacity: 0.6, marginTop: '2rem', fontWeight: 400, color: 'var(--text-light)', textAlign: 'left' }}>
-                                  Press <strong>Enter ↵</strong> to continue.
+                                <div style={{ fontSize: '0.85rem', opacity: 0.6, marginTop: '1rem', fontWeight: 400, color: 'var(--text-light)', textAlign: 'left' }}>
+                                  Press <strong style={{ color: 'var(--primary-color)', textDecoration: 'none', borderBottom: 'none' }}>Enter ↵</strong> to continue.
                                 </div>
                               )}
                             </div>
@@ -670,7 +670,7 @@ function App() {
                           )}
                           {q.type !== 'summary' && (
                             <div className="enter-hint" style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--text-light)', opacity: 0.6, letterSpacing: '0.5px' }}>
-                              Press <strong>Enter ↵</strong>
+                              Press <strong style={{ color: 'var(--primary-color)', textDecoration: 'none', borderBottom: 'none' }}>Enter ↵</strong>
                             </div>
                           )}
                           <AnimatePresence>
