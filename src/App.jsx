@@ -160,7 +160,19 @@ function App() {
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [currentStep, showModal, formData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, showModal]);
+
+  // Auto-advance summary screens after 10 seconds
+  useEffect(() => {
+    if (questions[currentStep]?.type === 'summary' && !showModal && !showSuccessModal) {
+      const timer = setTimeout(() => {
+        handleNext();
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, showModal, showSuccessModal, formData]);
 
   const validateStep = (stepIndex) => {
     const q = questions[stepIndex];
@@ -277,401 +289,406 @@ function App() {
   return (
     <>
       <div className="app-container">
-      <div className="app-header">
-        <h1>JENESIARED | LAUNCH READY</h1>
-      </div>
+        <div className="app-header">
+          <h1>JENESIARED | LAUNCH READY</h1>
+        </div>
 
-      {/* Navigation buttons at top right, outside form to avoid stacking context issues */}
-      <div className="navigation-buttons">
-        <button
-          type="button"
-          className={`btn btn-secondary ${currentStep === 0 ? 'hidden' : ''}`}
-          onClick={handleBack}
-        >
-          ← Back
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={handleFormSubmit}
-          disabled={!isValid}
-        >
-          {currentStep < questions.length - 1 ? 'Next →' : 'Review'}
-        </button>
-      </div>
+        {/* Navigation buttons at top right, outside form to avoid stacking context issues */}
+        <div className="navigation-buttons">
+          <button
+            type="button"
+            className={`btn btn-secondary ${currentStep === 0 ? 'hidden' : ''}`}
+            onClick={handleBack}
+          >
+            ← Back
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleFormSubmit}
+            disabled={!isValid}
+          >
+            {currentStep < questions.length - 1 ? 'Next →' : 'Review'}
+          </button>
+        </div>
 
 
-      {/* Fade overlays */}
-      <div className="fade-overlay-top" />
-      <div className="fade-overlay-bottom" />
+        {/* Fade overlays */}
+        <div className="fade-overlay-top" />
+        <div className="fade-overlay-bottom" />
 
-      <div className="progress-timeline">
-        <div className="progress-timeline-track">
-          <div
-            className="progress-timeline-fill"
-            style={{ width: `${isCompleted ? 100 : (currentStep / (questions.length - 1)) * 100}%` }}
-          />
-          {[
-            { index: 0, label: 'Personal Info' },
-            { index: 9, label: 'Product' },
-            { index: 17, label: 'Pricing' },
-            { index: 19, label: 'Audience' }
-          ].map((milestone, i, arr) => {
-            const position = (milestone.index / (questions.length - 1)) * 100;
-            const isPassed = isCompleted || highestStep >= milestone.index;
-            const isCurrent = currentStep >= milestone.index && (i === arr.length - 1 || currentStep < arr[i + 1].index);
+        <div className="progress-timeline">
+          <div className="progress-timeline-track">
+            <div
+              className="progress-timeline-fill"
+              style={{ width: `${isCompleted ? 100 : (currentStep / (questions.length - 1)) * 100}%` }}
+            />
+            {[
+              { index: 0, label: 'Personal Info' },
+              { index: 9, label: 'Product' },
+              { index: 17, label: 'Pricing' },
+              { index: 19, label: 'Audience' }
+            ].map((milestone, i, arr) => {
+              const position = (milestone.index / (questions.length - 1)) * 100;
+              const isPassed = isCompleted || highestStep >= milestone.index;
+              const isCurrent = currentStep >= milestone.index && (i === arr.length - 1 || currentStep < arr[i + 1].index);
 
-            const handleMilestoneClick = () => {
-              if (isCompleted) {
-                setCurrentStep(milestone.index);
-                return;
-              }
-              if (milestone.index <= highestStep) {
-                // Moving to a previously reached milestone.
-                // Only allow if current step is valid, OR if moving backward.
-                if (milestone.index > currentStep && !validateStep(currentStep)) {
+              const handleMilestoneClick = () => {
+                if (isCompleted) {
+                  setCurrentStep(milestone.index);
                   return;
                 }
-                setCurrentStep(milestone.index);
-              }
-            };
-
-            return (
-              <div
-                key={milestone.index}
-                className={`milestone-dot ${isPassed ? 'passed' : ''} ${isCurrent ? 'current' : ''}`}
-                style={{ left: `${position}%`, cursor: isPassed ? 'pointer' : 'default', opacity: isPassed ? 1 : 0.5 }}
-                onClick={handleMilestoneClick}
-              >
-                <span className="milestone-label">
-                  {milestone.label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="form-wrapper">
-        <form onSubmit={handleFormSubmit}>
-          <div className="questions-stack">
-            {questions.map((q, index) => {
-              const offset = index - currentStep;
-
-              // Clamp visual offset to prevent massive animations that can glitch Framer Motion
-              const visualOffset = Math.max(-2, Math.min(2, offset));
-
-              const isHorizontalGroup = (index >= 4 && index <= 7) || (index >= 10 && index <= 13) || (index >= 19 && index <= 21);
-
-              const isGroup1 = index >= 4 && index <= 7;
-              const isGroup2 = index >= 10 && index <= 13;
-              const isGroup3 = index >= 19 && index <= 21;
-
-              const currentInGroup1 = currentStep >= 4 && currentStep <= 7;
-              const currentInGroup2 = currentStep >= 10 && currentStep <= 13;
-              const currentInGroup3 = currentStep >= 19 && currentStep <= 21;
-              const currentIsHorizontal = currentInGroup1 || currentInGroup2 || currentInGroup3;
-
-              const isActiveGroup =
-                (isGroup1 && currentInGroup1) ||
-                (isGroup2 && currentInGroup2) ||
-                (isGroup3 && currentInGroup3);
-
-              // Only render questions within range, or in the active horizontal group
-              if (Math.abs(offset) > 3 && !isActiveGroup) return null;
-
-              const isLeftStacked = isHorizontalGroup && isActiveGroup && offset < 0;
-              const currentIsSummary = questions[currentStep]?.type === 'summary';
-              const ySpacing = currentIsSummary ? 320 : 260;
-              const inactiveYOffset = 25; // Shift down to balance the invisible input at the bottom
-
-              let x = 0;
-              let y = 0;
-              let opacity = 0;
-              let scale = 1;
-
-              if (offset === 0) {
-                x = 0;
-                y = 0;
-                opacity = 1;
-                scale = 1;
-              } else if (offset < 0) {
-                const baseIndex = isGroup2 ? 10 : isGroup3 ? 19 : 4;
-                if (isLeftStacked && index === baseIndex) {
-                  // This is the preview sentence itself on the left
-                  x = -550;
-                  y = 0;
-                  opacity = 1;
-                  scale = 1;
-                } else if (isLeftStacked) {
-                  // Answered questions in the same group fade to the left
-                  x = -200;
-                  y = 0;
-                  opacity = 0;
-                  scale = 0.8;
-                } else {
-                  // This is a previous stacked input outside the horizontal group
-                  x = -40;
-                  y = -ySpacing * Math.abs(visualOffset) + inactiveYOffset;
-                  opacity = Math.abs(offset) > 3 ? 0 : 0.9;
-                  scale = 0.85;
+                if (milestone.index <= highestStep) {
+                  // Moving to a previously reached milestone.
+                  // Only allow if current step is valid, OR if moving backward.
+                  if (milestone.index > currentStep && !validateStep(currentStep)) {
+                    return;
+                  }
+                  setCurrentStep(milestone.index);
                 }
-              } else if (offset > 0) {
-                if (isHorizontalGroup && isActiveGroup) {
-                  // Next questions in the active horizontal group come from the right
-                  x = 750;
-                  y = 0;
-                  opacity = (offset === 1) ? 0.25 : 0;
-                  scale = 0.85;
-                } else {
-                  // Standard vertical stack from the bottom
-                  x = -40;
-                  y = ySpacing * Math.abs(visualOffset) + inactiveYOffset;
-                  opacity = (offset === 1) ? 0.25 : 0;
-                  scale = 0.85;
-                }
-              }
-
-              const isCurrent = offset === 0;
-              const actualQuestionNumber = questions.slice(0, index + 1).filter(qq => qq.type !== 'summary').length;
-              const totalQuestions = questions.filter(qq => qq.type !== 'summary').length;
-
-              const segmentVariants = {
-                hidden: { opacity: 0.2, filter: "blur(3px)" },
-                visible: { opacity: 1, filter: "blur(0px)", transition: { duration: 0.5, ease: "easeOut" } }
               };
-
-              const getPreviewText = (idx, data, current) => {
-                if (idx === 4) {
-                  return (
-                    <>
-                      I am a <strong>{data.profession || '...'}</strong>
-                      <motion.span initial="hidden" animate={current >= 5 ? "visible" : "hidden"} variants={segmentVariants}> who helps <strong>{data.aboutClients || '...'}</strong></motion.span>
-                      <motion.span initial="hidden" animate={current >= 6 ? "visible" : "hidden"} variants={segmentVariants}> achieve <strong>{data.aboutGoal || '...'}</strong></motion.span>
-                      <motion.span initial="hidden" animate={current >= 7 ? "visible" : "hidden"} variants={segmentVariants}> without <strong>{data.aboutPainPoints || '...'}</strong></motion.span>
-                    </>
-                  );
-                }
-                if (idx === 10) {
-                  return (
-                    <>
-                      My <strong>{data.productType || '...'}</strong>
-                      <motion.span initial="hidden" animate={current >= 11 ? "visible" : "hidden"} variants={segmentVariants}> helps <strong>{data.productClients || '...'}</strong></motion.span>
-                      <motion.span initial="hidden" animate={current >= 12 ? "visible" : "hidden"} variants={segmentVariants}> achieve <strong>{data.productGoal || '...'}</strong></motion.span>
-                      <motion.span initial="hidden" animate={current >= 13 ? "visible" : "hidden"} variants={segmentVariants}> by <strong>{data.productHow || '...'}</strong></motion.span>
-                    </>
-                  );
-                }
-                if (idx === 19) {
-                  return (
-                    <>
-                      This is ideal for <strong>{data.idealClients || '...'}</strong>
-                      <motion.span initial="hidden" animate={current >= 20 ? "visible" : "hidden"} variants={segmentVariants}> who <strong>{data.idealSituation || '...'}</strong></motion.span>
-                      <motion.span initial="hidden" animate={current >= 21 ? "visible" : "hidden"} variants={segmentVariants}>
-                        {data.notIdealSituation ? <> but is not ideal for <strong>{data.notIdealSituation}</strong></> : ''}
-                      </motion.span>
-                    </>
-                  );
-                }
-                return null;
-              };
-
-              const getGroupLength = (idx, data) => {
-                if (idx === 4 || idx === 8) return (data.profession?.length || 0) + (data.aboutClients?.length || 0) + (data.aboutGoal?.length || 0) + (data.aboutPainPoints?.length || 0);
-                if (idx === 10 || idx === 14) return (data.productType?.length || 0) + (data.productClients?.length || 0) + (data.productGoal?.length || 0) + (data.productHow?.length || 0);
-                if (idx === 19 || idx === 22) return (data.idealClients?.length || 0) + (data.idealSituation?.length || 0) + (data.notIdealSituation?.length || 0);
-                return 0;
-              };
-
-              const textLength = getGroupLength(index, formData);
-              let dynamicFontSize = '1.8rem';
-              if (textLength > 250) dynamicFontSize = '0.9rem';
-              else if (textLength > 150) dynamicFontSize = '1.1rem';
-              else if (textLength > 80) dynamicFontSize = '1.35rem';
-              else if (textLength > 40) dynamicFontSize = '1.6rem';
-
-              let summaryFontSize = '2.25rem';
-              if (textLength > 300) summaryFontSize = '1.1rem';
-              else if (textLength > 200) summaryFontSize = '1.4rem';
-              else if (textLength > 100) summaryFontSize = '1.7rem';
-              else if (textLength > 50) summaryFontSize = '2.0rem';
 
               return (
-                <motion.div
-                  key={q.id}
-                  initial={false}
-                  animate={{
-                    x,
-                    y,
-                    opacity,
-                    scale,
-                    zIndex: isCurrent ? 100 : (10 - Math.abs(offset))
-                  }}
-                  transition={{
-                    x: { type: "spring", stiffness: 300, damping: 30 },
-                    y: { type: "spring", stiffness: 100, damping: 20 },
-                    opacity: { duration: 0.3 },
-                    scale: { type: "spring", stiffness: 200, damping: 25 }
-                  }}
-                  className="question-container"
-                  style={{
-                    pointerEvents: isCurrent ? 'auto' : 'none',
-                  }}
+                <div
+                  key={milestone.index}
+                  className={`milestone-dot ${isPassed ? 'passed' : ''} ${isCurrent ? 'current' : ''}`}
+                  style={{ left: `${position}%`, cursor: isPassed ? 'pointer' : 'default', opacity: isPassed ? 1 : 0.5 }}
+                  onClick={handleMilestoneClick}
                 >
-                  {isLeftStacked && index === (isGroup2 ? 10 : isGroup3 ? 19 : 4) ? (
-                    <div
-                      className="preview-line active"
-                      style={{
-                        display: 'inline-block',
-                        lineHeight: '1.8',
-                        maxWidth: '400px',
-                        paddingRight: '1rem',
-                        fontSize: dynamicFontSize,
-                        transition: 'font-size 0.3s ease'
-                      }}
-                    >
-                      {getPreviewText(index, formData, currentStep)}
-                    </div>
-                  ) : (
-                    <>
-                      {q.type !== 'summary' && (
-                        <>
-                          <span
-                            className="step-indicator"
-                            style={{ opacity: isCurrent ? 1 : 0, transition: 'opacity 0.3s ease' }}
-                          >
-                            Question {actualQuestionNumber} of {totalQuestions}
-                          </span>
-                          <h2 className="question-label">{q.label}</h2>
-                          {q.description && <p className="question-description">{q.description}</p>}
-                        </>
-                      )}
-
-                      <div style={{ opacity: isCurrent ? 1 : 0, transition: 'opacity 0.3s ease' }}>
-                        {q.type === 'summary' ? (
-                          <div className="summary-statement">
-                            {q.id === 'summary1' && (
-                              <p style={{ fontSize: summaryFontSize, transition: 'font-size 0.3s ease' }}>
-                                I am a <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'profession', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.profession || '___'}</strong> who helps <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutClients || '___'}</strong> achieve <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutGoal', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutGoal || '___'}</strong> without <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutPainPoints', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutPainPoints || '___'}</strong>.
-                              </p>
-                            )}
-                            {q.id === 'summary2' && (
-                              <p style={{ fontSize: summaryFontSize, transition: 'font-size 0.3s ease' }}>
-                                My <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productType', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productType || '___'}</strong> helps <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productClients || '___'}</strong> achieve <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productGoal', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productGoal || '___'}</strong> by <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productHow', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productHow || '___'}</strong>.
-                              </p>
-                            )}
-                            {q.id === 'summary3' && (
-                              <p style={{ fontSize: summaryFontSize, transition: 'font-size 0.3s ease' }}>
-                                This is ideal for <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'idealClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.idealClients || '___'}</strong> who <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'idealSituation', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.idealSituation || '___'}</strong>
-                                <span style={{ display: formData.notIdealSituation ? 'inline' : 'none' }}> but is not ideal for <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'notIdealSituation', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.notIdealSituation || '___'}</strong></span>.
-                              </p>
-                            )}
-                          </div>
-                        ) : q.type === 'multiselect' ? (
-                          <div className="pills-container" style={{ alignItems: 'center' }}>
-                            {q.options.map(option => (
-                              <button
-                                key={option}
-                                type="button"
-                                className={`pill-btn ${(formData[q.id] || []).includes(option) ? 'selected' : ''}`}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (isCurrent) handleMultiSelect(option);
-                                }}
-                                onKeyDown={isCurrent ? handleKeyDown : undefined}
-                                tabIndex={isCurrent ? 0 : -1}
-                                style={{ pointerEvents: 'auto' }}
-                              >
-                                {option}
-                              </button>
-                            ))}
-                            <AnimatePresence>
-                              {(formData[q.id] || []).includes('Others') && (
-                                <motion.input
-                                  initial={{ opacity: 0, scale: 0.9, width: 0 }}
-                                  animate={{ opacity: 1, scale: 1, width: 250 }}
-                                  exit={{ opacity: 0, scale: 0.9, width: 0 }}
-                                  type="text"
-                                  name={`${q.id}Others`}
-                                  className="line-input"
-                                  style={{
-                                    fontSize: '1.25rem',
-                                    borderBottom: '2px solid var(--primary-color)',
-                                    padding: '0.5rem 1rem',
-                                    minWidth: 0,
-                                    flex: '1 1 auto',
-                                    margin: 0
-                                  }}
-                                  placeholder="Please specify..."
-                                  value={formData[`${q.id}Others`] || ''}
-                                  onChange={isCurrent ? handleChange : undefined}
-                                  onKeyDown={isCurrent ? handleKeyDown : undefined}
-                                  readOnly={!isCurrent}
-                                  tabIndex={isCurrent ? 0 : -1}
-                                  autoFocus
-                                />
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        ) : q.type === 'textarea' ? (
-                          <textarea
-                            ref={isCurrent ? inputRef : null}
-                            name={q.id}
-                            className="line-textarea"
-                            placeholder={q.placeholder}
-                            value={formData[q.id]}
-                            onChange={(e) => {
-                              e.target.style.height = 'auto';
-                              e.target.style.height = e.target.scrollHeight + 'px';
-                              if (isCurrent && handleChange) handleChange(e);
-                            }}
-                            onKeyDown={isCurrent ? handleKeyDown : undefined}
-                            readOnly={!isCurrent}
-                            tabIndex={isCurrent ? 0 : -1}
-                            rows={1}
-                          />
-                        ) : (
-                          <input
-                            ref={isCurrent ? inputRef : null}
-                            type="text"
-                            name={q.id}
-                            className="line-input"
-                            placeholder={q.placeholder}
-                            value={formData[q.id]}
-                            onChange={isCurrent ? handleChange : undefined}
-                            onKeyDown={isCurrent ? handleKeyDown : undefined}
-                            readOnly={!isCurrent}
-                            tabIndex={isCurrent ? 0 : -1}
-                            autoComplete="off"
-                          />
-                        )}
-                        {q.type !== 'summary' && (
-                          <div className="enter-hint" style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--text-light)', opacity: 0.6, letterSpacing: '0.5px' }}>
-                            Press <strong>Enter ↵</strong>
-                          </div>
-                        )}
-                        <AnimatePresence>
-                          {isCurrent && getErrorMessage(index) && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
-                              style={{ color: '#ff4d4f', fontSize: '0.85rem', marginTop: '0.5rem', position: 'absolute' }}
-                            >
-                              {getErrorMessage(index)}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </>
-                  )}
-                </motion.div>
+                  <span className="milestone-label">
+                    {milestone.label}
+                  </span>
+                </div>
               );
             })}
           </div>
-        </form>
-      </div>
+        </div>
+
+        <div className="form-wrapper">
+          <form onSubmit={handleFormSubmit}>
+            <div className="questions-stack">
+              {questions.map((q, index) => {
+                const offset = index - currentStep;
+
+                // Clamp visual offset to prevent massive animations that can glitch Framer Motion
+                const visualOffset = Math.max(-2, Math.min(2, offset));
+
+                const isHorizontalGroup = (index >= 4 && index <= 7) || (index >= 10 && index <= 13) || (index >= 19 && index <= 21);
+
+                const isGroup1 = index >= 4 && index <= 7;
+                const isGroup2 = index >= 10 && index <= 13;
+                const isGroup3 = index >= 19 && index <= 21;
+
+                const currentInGroup1 = currentStep >= 4 && currentStep <= 7;
+                const currentInGroup2 = currentStep >= 10 && currentStep <= 13;
+                const currentInGroup3 = currentStep >= 19 && currentStep <= 21;
+                const currentIsHorizontal = currentInGroup1 || currentInGroup2 || currentInGroup3;
+
+                const isActiveGroup =
+                  (isGroup1 && currentInGroup1) ||
+                  (isGroup2 && currentInGroup2) ||
+                  (isGroup3 && currentInGroup3);
+
+                // Only render questions within range, or in the active horizontal group
+                if (Math.abs(offset) > 3 && !isActiveGroup) return null;
+
+                const isLeftStacked = isHorizontalGroup && isActiveGroup && offset < 0;
+                const currentIsSummary = questions[currentStep]?.type === 'summary';
+                const ySpacing = currentIsSummary ? 320 : 260;
+                const inactiveYOffset = 25; // Shift down to balance the invisible input at the bottom
+
+                let x = 0;
+                let y = 0;
+                let opacity = 0;
+                let scale = 1;
+
+                if (offset === 0) {
+                  x = 0;
+                  y = 0;
+                  opacity = 1;
+                  scale = 1;
+                } else if (offset < 0) {
+                  const baseIndex = isGroup2 ? 10 : isGroup3 ? 19 : 4;
+                  if (isLeftStacked && index === baseIndex) {
+                    // This is the preview sentence itself on the left
+                    x = -550;
+                    y = 0;
+                    opacity = 1;
+                    scale = 1;
+                  } else if (isLeftStacked) {
+                    // Answered questions in the same group fade to the left
+                    x = -200;
+                    y = 0;
+                    opacity = 0;
+                    scale = 0.8;
+                  } else {
+                    // This is a previous stacked input outside the horizontal group
+                    x = -40;
+                    y = -ySpacing * Math.abs(visualOffset) + inactiveYOffset;
+                    opacity = Math.abs(offset) > 3 ? 0 : 0.9;
+                    scale = 0.85;
+                  }
+                } else if (offset > 0) {
+                  if (isHorizontalGroup && isActiveGroup) {
+                    // Next questions in the active horizontal group come from the right
+                    x = 750;
+                    y = 0;
+                    opacity = (offset === 1) ? 0.25 : 0;
+                    scale = 0.85;
+                  } else {
+                    // Standard vertical stack from the bottom
+                    x = -40;
+                    y = ySpacing * Math.abs(visualOffset) + inactiveYOffset;
+                    opacity = (offset === 1) ? 0.25 : 0;
+                    scale = 0.85;
+                  }
+                }
+
+                const isCurrent = offset === 0;
+                const actualQuestionNumber = questions.slice(0, index + 1).filter(qq => qq.type !== 'summary').length;
+                const totalQuestions = questions.filter(qq => qq.type !== 'summary').length;
+
+                const segmentVariants = {
+                  hidden: { opacity: 0.2, filter: "blur(3px)" },
+                  visible: { opacity: 1, filter: "blur(0px)", transition: { duration: 0.5, ease: "easeOut" } }
+                };
+
+                const getPreviewText = (idx, data, current) => {
+                  if (idx === 4) {
+                    return (
+                      <>
+                        I am a <strong>{data.profession || '...'}</strong>
+                        <motion.span initial="hidden" animate={current >= 5 ? "visible" : "hidden"} variants={segmentVariants}> who helps <strong>{data.aboutClients || '...'}</strong></motion.span>
+                        <motion.span initial="hidden" animate={current >= 6 ? "visible" : "hidden"} variants={segmentVariants}> achieve <strong>{data.aboutGoal || '...'}</strong></motion.span>
+                        <motion.span initial="hidden" animate={current >= 7 ? "visible" : "hidden"} variants={segmentVariants}> without <strong>{data.aboutPainPoints || '...'}</strong></motion.span>
+                      </>
+                    );
+                  }
+                  if (idx === 10) {
+                    return (
+                      <>
+                        My <strong>{data.productType || '...'}</strong>
+                        <motion.span initial="hidden" animate={current >= 11 ? "visible" : "hidden"} variants={segmentVariants}> helps <strong>{data.productClients || '...'}</strong></motion.span>
+                        <motion.span initial="hidden" animate={current >= 12 ? "visible" : "hidden"} variants={segmentVariants}> achieve <strong>{data.productGoal || '...'}</strong></motion.span>
+                        <motion.span initial="hidden" animate={current >= 13 ? "visible" : "hidden"} variants={segmentVariants}> by <strong>{data.productHow || '...'}</strong></motion.span>
+                      </>
+                    );
+                  }
+                  if (idx === 19) {
+                    return (
+                      <>
+                        This is ideal for <strong>{data.idealClients || '...'}</strong>
+                        <motion.span initial="hidden" animate={current >= 20 ? "visible" : "hidden"} variants={segmentVariants}> who <strong>{data.idealSituation || '...'}</strong></motion.span>
+                        <motion.span initial="hidden" animate={current >= 21 ? "visible" : "hidden"} variants={segmentVariants}>
+                          {data.notIdealSituation ? <> but is not ideal for <strong>{data.notIdealSituation}</strong></> : ''}
+                        </motion.span>
+                      </>
+                    );
+                  }
+                  return null;
+                };
+
+                const getGroupLength = (idx, data) => {
+                  if (idx === 4 || idx === 8) return (data.profession?.length || 0) + (data.aboutClients?.length || 0) + (data.aboutGoal?.length || 0) + (data.aboutPainPoints?.length || 0);
+                  if (idx === 10 || idx === 14) return (data.productType?.length || 0) + (data.productClients?.length || 0) + (data.productGoal?.length || 0) + (data.productHow?.length || 0);
+                  if (idx === 19 || idx === 22) return (data.idealClients?.length || 0) + (data.idealSituation?.length || 0) + (data.notIdealSituation?.length || 0);
+                  return 0;
+                };
+
+                const textLength = getGroupLength(index, formData);
+                let dynamicFontSize = '1.8rem';
+                if (textLength > 250) dynamicFontSize = '0.9rem';
+                else if (textLength > 150) dynamicFontSize = '1.1rem';
+                else if (textLength > 80) dynamicFontSize = '1.35rem';
+                else if (textLength > 40) dynamicFontSize = '1.6rem';
+
+                let summaryFontSize = '2.25rem';
+                if (textLength > 300) summaryFontSize = '1.1rem';
+                else if (textLength > 200) summaryFontSize = '1.4rem';
+                else if (textLength > 100) summaryFontSize = '1.7rem';
+                else if (textLength > 50) summaryFontSize = '2.0rem';
+
+                return (
+                  <motion.div
+                    key={q.id}
+                    initial={false}
+                    animate={{
+                      x,
+                      y,
+                      opacity,
+                      scale,
+                      zIndex: isCurrent ? 100 : (10 - Math.abs(offset))
+                    }}
+                    transition={{
+                      x: { type: "spring", stiffness: 300, damping: 30 },
+                      y: { type: "spring", stiffness: 100, damping: 20 },
+                      opacity: { duration: 0.3 },
+                      scale: { type: "spring", stiffness: 200, damping: 25 }
+                    }}
+                    className="question-container"
+                    style={{
+                      pointerEvents: isCurrent ? 'auto' : 'none',
+                    }}
+                  >
+                    {isLeftStacked && index === (isGroup2 ? 10 : isGroup3 ? 19 : 4) ? (
+                      <div
+                        className="preview-line active"
+                        style={{
+                          display: 'inline-block',
+                          lineHeight: '1.8',
+                          maxWidth: '400px',
+                          paddingRight: '1rem',
+                          fontSize: dynamicFontSize,
+                          transition: 'font-size 0.3s ease'
+                        }}
+                      >
+                        {getPreviewText(index, formData, currentStep)}
+                      </div>
+                    ) : (
+                      <>
+                        {q.type !== 'summary' && (
+                          <>
+                            <span
+                              className="step-indicator"
+                              style={{ opacity: isCurrent ? 1 : 0, transition: 'opacity 0.3s ease' }}
+                            >
+                              Question {actualQuestionNumber} of {totalQuestions}
+                            </span>
+                            <h2 className="question-label">{q.label}</h2>
+                            {q.description && <p className="question-description">{q.description}</p>}
+                          </>
+                        )}
+
+                        <div style={{ opacity: isCurrent ? 1 : 0, transition: 'opacity 0.3s ease' }}>
+                          {q.type === 'summary' ? (
+                            <div className="summary-statement">
+                              {isCurrent && (
+                                <div style={{ textAlign: 'left', marginBottom: '1rem', color: 'var(--primary-color)', fontSize: '0.9rem', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600 }}>
+                                  IS THIS CORRECT?
+                                </div>
+                              )}
+                              {q.id === 'summary1' && (
+                                <p style={{ fontSize: summaryFontSize, transition: 'font-size 0.3s ease' }}>
+                                  I am a <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'profession', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.profession || '___'}</strong> who helps <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutClients || '___'}</strong> achieve <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutGoal', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutGoal || '___'}</strong> without <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'aboutPainPoints', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.aboutPainPoints || '___'}</strong>.
+                                </p>
+                              )}
+                              {q.id === 'summary2' && (
+                                <p style={{ fontSize: summaryFontSize, transition: 'font-size 0.3s ease' }}>
+                                  My <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productType', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productType || '___'}</strong> helps <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productClients || '___'}</strong> achieve <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productGoal', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productGoal || '___'}</strong> by <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'productHow', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.productHow || '___'}</strong>.
+                                </p>
+                              )}
+                              {q.id === 'summary3' && (
+                                <p style={{ fontSize: summaryFontSize, transition: 'font-size 0.3s ease' }}>
+                                  This is ideal for <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'idealClients', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.idealClients || '___'}</strong> who <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'idealSituation', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.idealSituation || '___'}</strong>
+                                  <span style={{ display: formData.notIdealSituation ? 'inline' : 'none' }}> but is not ideal for <strong className={isCurrent ? "editable-text" : ""} contentEditable={isCurrent} suppressContentEditableWarning onBlur={(e) => isCurrent && handleChange({ target: { name: 'notIdealSituation', value: e.currentTarget.textContent } })} onKeyDown={isCurrent ? (e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); handleNext(); } } : undefined}>{formData.notIdealSituation || '___'}</strong></span>.
+                                </p>
+                              )}
+                            </div>
+                          ) : q.type === 'multiselect' ? (
+                            <div className="pills-container" style={{ alignItems: 'center' }}>
+                              {q.options.map(option => (
+                                <button
+                                  key={option}
+                                  type="button"
+                                  className={`pill-btn ${(formData[q.id] || []).includes(option) ? 'selected' : ''}`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (isCurrent) handleMultiSelect(option);
+                                  }}
+                                  onKeyDown={isCurrent ? handleKeyDown : undefined}
+                                  tabIndex={isCurrent ? 0 : -1}
+                                  style={{ pointerEvents: 'auto' }}
+                                >
+                                  {option}
+                                </button>
+                              ))}
+                              <AnimatePresence>
+                                {(formData[q.id] || []).includes('Others') && (
+                                  <motion.input
+                                    initial={{ opacity: 0, scale: 0.9, width: 0 }}
+                                    animate={{ opacity: 1, scale: 1, width: 250 }}
+                                    exit={{ opacity: 0, scale: 0.9, width: 0 }}
+                                    type="text"
+                                    name={`${q.id}Others`}
+                                    className="line-input"
+                                    style={{
+                                      fontSize: '1.25rem',
+                                      borderBottom: '2px solid var(--primary-color)',
+                                      padding: '0.5rem 1rem',
+                                      minWidth: 0,
+                                      flex: '1 1 auto',
+                                      margin: 0
+                                    }}
+                                    placeholder="Please specify..."
+                                    value={formData[`${q.id}Others`] || ''}
+                                    onChange={isCurrent ? handleChange : undefined}
+                                    onKeyDown={isCurrent ? handleKeyDown : undefined}
+                                    readOnly={!isCurrent}
+                                    tabIndex={isCurrent ? 0 : -1}
+                                    autoFocus
+                                  />
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          ) : q.type === 'textarea' ? (
+                            <textarea
+                              ref={isCurrent ? inputRef : null}
+                              name={q.id}
+                              className="line-textarea"
+                              placeholder={q.placeholder}
+                              value={formData[q.id]}
+                              onChange={(e) => {
+                                e.target.style.height = 'auto';
+                                e.target.style.height = e.target.scrollHeight + 'px';
+                                if (isCurrent && handleChange) handleChange(e);
+                              }}
+                              onKeyDown={isCurrent ? handleKeyDown : undefined}
+                              readOnly={!isCurrent}
+                              tabIndex={isCurrent ? 0 : -1}
+                              rows={1}
+                            />
+                          ) : (
+                            <input
+                              ref={isCurrent ? inputRef : null}
+                              type="text"
+                              name={q.id}
+                              className="line-input"
+                              placeholder={q.placeholder}
+                              value={formData[q.id]}
+                              onChange={isCurrent ? handleChange : undefined}
+                              onKeyDown={isCurrent ? handleKeyDown : undefined}
+                              readOnly={!isCurrent}
+                              tabIndex={isCurrent ? 0 : -1}
+                              autoComplete="off"
+                            />
+                          )}
+                          {q.type !== 'summary' && (
+                            <div className="enter-hint" style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--text-light)', opacity: 0.6, letterSpacing: '0.5px' }}>
+                              Press <strong>Enter ↵</strong>
+                            </div>
+                          )}
+                          <AnimatePresence>
+                            {isCurrent && getErrorMessage(index) && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                style={{ color: '#ff4d4f', fontSize: '0.85rem', marginTop: '0.5rem', position: 'absolute' }}
+                              >
+                                {getErrorMessage(index)}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          </form>
+        </div>
       </div>
 
       <AnimatePresence>
