@@ -5,10 +5,10 @@ import PdfDocument from './PdfDocument';
 import './index.css';
 
 const questions = [
-  { id: 'name', label: 'Name', placeholder: 'Your Full Name', description: 'PERSONAL & BUSINESS INFORMATION' },
-  { id: 'email', label: 'Email Address', placeholder: 'you@example.com', description: 'PERSONAL & BUSINESS INFORMATION' },
-  { id: 'businessName', label: 'Business Name', placeholder: 'Your Company Name', description: 'PERSONAL & BUSINESS INFORMATION' },
-  { id: 'businessWebsite', label: 'Business Website', placeholder: 'https://', description: 'PERSONAL & BUSINESS INFORMATION (if applicable)', optional: true },
+  { id: 'name', label: 'Name', placeholder: 'Your Full Name', description: '' },
+  { id: 'email', label: 'Email Address', placeholder: 'you@example.com', description: '' },
+  { id: 'businessName', label: 'Business Name', placeholder: 'Your Company Name', description: '' },
+  { id: 'businessWebsite', label: 'Business Website', placeholder: 'https://', description: '(if applicable)', optional: true },
 
   { id: 'profession', label: 'I am a...', placeholder: 'e.g., Marketing Strategist', description: '[Profession/Role]' },
   { id: 'aboutClients', label: 'who helps...', placeholder: 'e.g., B2B SaaS companies', description: '[Current/Previous clients]' },
@@ -16,25 +16,25 @@ const questions = [
   { id: 'aboutPainPoints', label: 'without...', placeholder: 'e.g., spending thousands on ads', description: '[Pain Points/Friction]' },
   { id: 'summary1', label: '', type: 'summary', group: 1 },
 
-  { id: 'productName', label: 'Product Name', placeholder: 'Name of your product or service', description: 'PRODUCT DETAILS' },
-  { id: 'productType', label: 'My...', placeholder: 'e.g., signature coaching program', description: 'PRODUCT DETAILS' },
-  { id: 'productClients', label: 'helps...', placeholder: 'e.g., new agency owners', description: 'PRODUCT DETAILS' },
-  { id: 'productGoal', label: 'achieve...', placeholder: 'e.g., consistent 10k months', description: 'PRODUCT DETAILS' },
-  { id: 'productHow', label: 'by...', placeholder: 'e.g., installing a predictable acquisition system', description: 'PRODUCT DETAILS' },
+  { id: 'productName', label: 'Product Name', placeholder: 'Name of your product or service', description: '' },
+  { id: 'productType', label: 'My...', placeholder: 'e.g., signature coaching program', description: '[Product/Service/Program]' },
+  { id: 'productClients', label: 'helps...', placeholder: 'e.g., new agency owners', description: '[Your current/Previous clients]' },
+  { id: 'productGoal', label: 'achieve...', placeholder: 'e.g., consistent 10k months', description: '[Transformational goal]' },
+  { id: 'productHow', label: 'by...', placeholder: 'e.g., installing a predictable acquisition system', description: '[How it works]' },
   { id: 'summary2', label: '', type: 'summary', group: 2 },
 
-  { id: 'included', label: 'What\'s included?', placeholder: 'List main components / features / deliverables', description: 'PRODUCT DETAILS', type: 'textarea' },
-  { id: 'different', label: 'What makes it different?', placeholder: 'Explain your unique edge or value proposition', description: 'PRODUCT DETAILS (optional)', type: 'textarea', optional: true },
+  { id: 'included', label: 'What\'s included?', placeholder: 'List main components / features / deliverables', description: '[Main components/features/deliverables] ', type: 'textarea' },
+  { id: 'different', label: 'What makes it different?', placeholder: 'Explain your unique edge or value proposition', description: '(optional)', type: 'textarea', optional: true },
 
-  { id: 'price', label: 'Price', placeholder: 'e.g., $997 or $99/mo', description: 'PRICING & BUSINESS DETAILS' },
-  { id: 'pricingStructure', label: 'Pricing Structure', description: 'PRICING & BUSINESS DETAILS (multiple selection)', type: 'multiselect', options: ['One-time Payment', 'Installment', 'Subscription', 'Others'] },
+  { id: 'price', label: 'Price', placeholder: 'e.g., $997 or $99/mo', description: '[Price / pricing structure]' },
+  { id: 'pricingStructure', label: 'Pricing Structure', description: '(Multiple selection)', type: 'multiselect', options: ['One-time Payment', 'Installment', 'Subscription', 'Others'] },
 
-  { id: 'idealClients', label: 'This is ideal for...', placeholder: 'e.g., ambitious entrepreneurs', description: 'TARGET AUDIENCE' },
-  { id: 'idealSituation', label: 'who...', placeholder: 'e.g., are ready to scale', description: 'TARGET AUDIENCE' },
-  { id: 'notIdealSituation', label: 'This is not ideal for...', placeholder: 'e.g., people looking for get-rich-quick schemes', description: 'TARGET AUDIENCE', optional: true },
+  { id: 'idealClients', label: 'This is ideal for...', placeholder: 'e.g., ambitious entrepreneurs', description: '[Your current/previous clients]' },
+  { id: 'idealSituation', label: 'who...', placeholder: 'e.g., are ready to scale', description: '[Specific situation/problem]' },
+  { id: 'notIdealSituation', label: 'This is not ideal for...', placeholder: 'e.g., people looking for get-rich-quick schemes', description: '[Type of person/situation]', optional: true },
   { id: 'summary3', label: '', type: 'summary', group: 3 },
 
-  { id: 'additionalInfo', label: 'Anything else we should know?', placeholder: 'To help bring your vision to life', description: 'ADDITIONAL INFO', type: 'textarea', optional: true },
+  { id: 'additionalInfo', label: 'Anything else we should know?', placeholder: 'To help bring your vision to life', description: '', type: 'textarea', optional: true },
 ];
 
 function App() {
