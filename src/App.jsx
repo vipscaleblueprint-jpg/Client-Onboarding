@@ -8,7 +8,7 @@ const questions = [
   { id: 'name', label: 'Name', placeholder: 'Your Full Name', description: '' },
   { id: 'email', label: 'Email Address', placeholder: 'you@example.com', description: '' },
   { id: 'businessName', label: 'Business Name', placeholder: 'Your Company Name', description: '' },
-  { id: 'businessWebsite', label: 'Business Website', placeholder: 'https://', description: '(if applicable)', optional: true },
+  { id: 'businessWebsite', label: 'Business Website', placeholder: 'https://', description: '(If Applicable)', optional: true },
 
   { id: 'profession', label: 'I am a...', placeholder: 'e.g., Marketing Strategist', description: '[Profession/Role]' },
   { id: 'aboutClients', label: 'who helps...', placeholder: 'e.g., B2B SaaS companies', description: '[Current/Previous Clients]' },
@@ -26,8 +26,8 @@ const questions = [
   { id: 'included', label: 'What\'s included?', placeholder: 'List main components / features / deliverables', description: '[Main Components/Features/Deliverables] ', type: 'textarea' },
   { id: 'different', label: 'What makes it different?', placeholder: 'Explain your unique edge or value proposition', description: '(Optional)', type: 'textarea', optional: true },
 
-  { id: 'price', label: 'Price', placeholder: 'e.g., $997 or $99/mo', description: '[Price / Pricing Structure]' },
-  { id: 'pricingStructure', label: 'Pricing Structure', description: '(Multiple selection)', type: 'multiselect', options: ['One-time Payment', 'Installment', 'Subscription', 'Others'] },
+  { id: 'price', label: 'Price', placeholder: 'e.g., $997 or $99/mo', description: '' },
+  { id: 'pricingStructure', label: 'Pricing Structure', description: '(Multiple Selection)', type: 'multiselect', options: ['One-time Payment', 'Installment', 'Subscription', 'Others'] },
 
   { id: 'idealClients', label: 'This is ideal for...', placeholder: 'e.g., ambitious entrepreneurs', description: '[Current/Previous Clients]' },
   { id: 'idealSituation', label: 'who...', placeholder: 'e.g., are ready to scale', description: '[Specific Situation/Problem]' },
@@ -755,7 +755,7 @@ function App() {
 
                         {section.summary && (
                           <div className="summary-item full-width-summary">
-                            <span className="summary-value">
+                            <span className="summary-value" style={{ color: 'var(--primary-color)' }}>
                               {section.summary.id === 'summary1' && (
                                 <>
                                   I am a <strong className="editable-text" contentEditable suppressContentEditableWarning onBlur={(e) => handleChange({ target: { name: 'profession', value: e.currentTarget.textContent } })} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}>{formData.profession || ''}</strong> who helps <strong className="editable-text" contentEditable suppressContentEditableWarning onBlur={(e) => handleChange({ target: { name: 'aboutClients', value: e.currentTarget.textContent } })} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}>{formData.aboutClients || ''}</strong> achieve <strong className="editable-text" contentEditable suppressContentEditableWarning onBlur={(e) => handleChange({ target: { name: 'aboutGoal', value: e.currentTarget.textContent } })} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}>{formData.aboutGoal || ''}</strong> without <strong className="editable-text" contentEditable suppressContentEditableWarning onBlur={(e) => handleChange({ target: { name: 'aboutPainPoints', value: e.currentTarget.textContent } })} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}>{formData.aboutPainPoints || ''}</strong>.
