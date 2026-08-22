@@ -642,6 +642,20 @@ form {
 }
 
 /* Responsive adjustments */
+@media (max-width: 1440px) {
+  .question-label {
+    font-size: 2.25rem;
+  }
+
+  .line-input {
+    font-size: 1.85rem;
+  }
+
+  .preview-line {
+    font-size: 0.95rem;
+  }
+}
+
 @media (max-width: 800px) {
   .left-preview-stack {
     display: none;

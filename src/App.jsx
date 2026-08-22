@@ -264,7 +264,6 @@ function App() {
     } else {
       setIsCompleted(true);
       setShowModal(true);
-      console.log('Form Submitted', formData);
     }
   };
 
@@ -411,10 +410,10 @@ function App() {
                   const baseIndex = isGroup2 ? 10 : isGroup3 ? 19 : 4;
                   if (isLeftStacked && index === baseIndex) {
                     // This is the preview sentence itself on the left
-                    x = -550;
+                    x = '-38vw';
                     y = 0;
                     opacity = 1;
-                    scale = 1;
+                    scale = 0.9;
                   } else if (isLeftStacked) {
                     // Answered questions in the same group fade to the left
                     x = -200;
@@ -431,7 +430,7 @@ function App() {
                 } else if (offset > 0) {
                   if (isHorizontalGroup && isActiveGroup) {
                     // Next questions in the active horizontal group come from the right
-                    x = 750;
+                    x = '38vw';
                     y = 0;
                     opacity = (offset === 1) ? 0.25 : 0;
                     scale = 0.85;
@@ -814,12 +813,41 @@ function App() {
                         throw new Error(`Webhook failed with status: ${response.status}`);
                       }
 
-                      console.log('Webhook Success');
                       setShowModal(false);
                       setShowSuccessModal(true);
+
+                      // Clear form and local storage
+                      setFormData({
+                        name: '',
+                        email: '',
+                        businessName: '',
+                        businessWebsite: '',
+                        profession: '',
+                        aboutClients: '',
+                        aboutGoal: '',
+                        aboutPainPoints: '',
+                        productName: '',
+                        productType: '',
+                        productClients: '',
+                        productGoal: '',
+                        productHow: '',
+                        included: '',
+                        different: '',
+                        price: '',
+                        pricingStructure: [],
+                        pricingStructureOthers: '',
+                        idealClients: '',
+                        idealSituation: '',
+                        notIdealSituation: '',
+                        additionalInfo: ''
+                      });
+                      setCurrentStep(0);
+                      setHighestStep(0);
+                      setIsCompleted(false);
+                      localStorage.removeItem('onboardingDraft_v3');
+                      autofilledRef.current = { productType: false, productClients: false, productGoal: false, idealClients: false };
                     } catch (error) {
                       console.error('Submission Error:', error);
-                      alert(`An error occurred: ${error.message}`);
                     } finally {
                       setIsSubmitting(false);
                     }
